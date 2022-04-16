@@ -1,6 +1,7 @@
 #include <Arduino_FreeRTOS.h>
 
 void TaskAnalogRead (void *pvParameters);
+unsigned int heartBeatCalculate(unsigned int sensorValue);
 
 void setup() {
   Serial.begin(9600);  
@@ -32,16 +33,22 @@ void TaskAnalogRead(void *pvParameters)  // This is a task.
   
 /*
   AnalogReadSerial
-  Reads an analog input on pin 0, prints the result to the serial monitor.
-  Graphical representation is available using serial plotter (Tools > Serial Plotter menu)
+  Reads an analog input on pin A0, prints the result to the serial monitor.
+  Graphical representation is available using serial plotter (Tools > Serial Plotter)
 */
-
-  for (;;)
-  {
-    // read the input on analog pin 0:
-    int sensorValue = analogRead(A0);
-    Serial.println(sensorValue);
-    vTaskDelay(1000 / portTICK_PERIOD_MS );  // one tick delay (15ms) in between reads for stability
+  
+  double realValue; 
+  double alpha=.05;
+  double average=0;
+  for (;;){
+    realValue = (double)analogRead(A0);
     
+    average = (alpha*realValue)+((1-alpha)*average);
+
+    Serial.print(realValue);
+    Serial.print(" ");
+    Serial.println(average);
+    vTaskDelay(30 / portTICK_PERIOD_MS );  // one tick delay (15ms) in between reads for stability
   }
 }
+
